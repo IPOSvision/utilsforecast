@@ -62,6 +62,9 @@ def plot_series(
     time_col: str = "ds",
     target_col: str = "y",
     seed: int = 0,
+    xlabel: Optional[str] = None,
+    ylabel: Optional[str] = None,
+    title: Optional[str] = None,
     resampler_kwargs: Optional[Dict] = None,
     ax: Optional[Union[plt.Axes, np.ndarray, "plotly.graph_objects.Figure"]] = None,
 ):
@@ -96,6 +99,9 @@ def plot_series(
             Defaults to 'y'.
         seed (int, optional): Seed used for the random number generator. Only
             used if plot_random is True. Defaults to 0.
+        xlabel (str, optional): Label for x-axis. Defaults to "".
+        ylabel (str, optional): Label for y-axis. Defaults to "".
+        title (str, optional): Label for tilte. Defaults to "".
         resampler_kwargs (dict, optional): Keyword arguments to be passed to
             plotly-resampler constructor. For further customization ("show_dash")
             call the method, store the plotting object and add the extra arguments
@@ -218,9 +224,10 @@ def plot_series(
                 df = pd.concat([df, forecasts_df])
             else:
                 df = pl.concat([df, forecasts_df], how="align")
-
-    xlabel = f"Time [{time_col}]"
-    ylabel = f"Target [{target_col}]"
+    if xlabel is None:
+        xlabel = f"Time [{time_col}]"
+    if ylabel is None:
+        ylabel = f"Target [{target_col}]"
     if palette is not None:
         if parse_version(mpl.__version__) < Version("3.6"):
             cmap = plt.cm.get_cmap(palette, len(models) + 1)
@@ -382,7 +389,8 @@ def plot_series(
                 _add_mpl_plot(ax[row, col], uid_df, y_col, level)
             else:
                 _add_plotly_plot(fig, uid_df, y_col, level)
-        title = f"{id_col}={uid}"
+        if title is None:
+            title = f"{id_col}={uid}"
         if isinstance(ax, np.ndarray):
             ax[row, col].set_title(title)
             if col == 0:
